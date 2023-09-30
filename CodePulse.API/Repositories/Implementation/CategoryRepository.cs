@@ -19,5 +19,13 @@ namespace CodePulse.API.Repositories.Implementation
             await dbContext.SaveChangesAsync();
             return category;
         }
+
+        public async Task<IEnumerable<Category>> GetAsync()
+        {
+            
+            return await dbContext.Categories.ToListAsync();
+        }
+
+        
     }
 }
