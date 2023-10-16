@@ -11,10 +11,12 @@ namespace CodePulse.API.Controllers
     public class BlogPostsController : ControllerBase
     {
         private readonly IBlogPostRepository blogPostRepository;
+        private readonly ICategoryRepository categoryRepository;
 
-        public BlogPostsController(IBlogPostRepository blogPostRepository)
+        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository)
         {
             this.blogPostRepository = blogPostRepository;
+            this.categoryRepository = categoryRepository;
         }
         [HttpPost]
         public async Task<IActionResult> CreateBlogPost([FromBody] CreateBlogPostRequestDto request)
@@ -29,8 +31,17 @@ namespace CodePulse.API.Controllers
                 FeaturedImageUrl = request.FeaturedImageUrl,
                 IsVisible = request.IsVisible,
                 PublishedDate = request.PublishedDate,
-
+                Categories = new List<Category>()
             };
+            //Here we are itterating through the create request guid of category and check if it valid or not with the help of category repository.If valid then add founded category in blogpost domain model
+            foreach (var categoryGuid in request.Categories)
+            {
+                var existingCategory = await categoryRepository.GetById(categoryGuid);
+                if (existingCategory != null)
+                {
+                    blogPost.Categories.Add(existingCategory);
+                }
+            }
             blogPost = await blogPostRepository.CreateAsync(blogPost);
 
             //Convert to DTO
@@ -44,14 +55,20 @@ namespace CodePulse.API.Controllers
                 Content = blogPost.Content,
                 PublishedDate = blogPost.PublishedDate,
                 IsVisible = blogPost.IsVisible,
-                FeaturedImageUrl = blogPost.FeaturedImageUrl
+                FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                Categories = blogPost.Categories.Select(x => new CategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                }).ToList()
             };
             return Ok(response);
         }
         [HttpGet]
         public async Task<IActionResult> GetAllBlogPosts()
         {
-            var blogPosts= await blogPostRepository.GetAllAsync();
+            var blogPosts = await blogPostRepository.GetAllAsync();
             //Convert to DTO
             var response = new List<BlogPostDto>();
             foreach (var blogPost in blogPosts)
