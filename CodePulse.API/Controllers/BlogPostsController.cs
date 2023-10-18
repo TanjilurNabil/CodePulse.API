@@ -94,5 +94,91 @@ namespace CodePulse.API.Controllers
             }
             return Ok(response);
         }
+        //GET
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetBlogPostById([FromRoute] Guid id)
+        {
+            //Get the blogpost from repo
+            var blogPost = await blogPostRepository.GetByIdAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+            //Convert to DTO
+            var response = new BlogPostDto
+            {
+                Id = blogPost.Id,
+                Title = blogPost.Title,
+                Author = blogPost.Author,
+                UrlHandle = blogPost.UrlHandle,
+                ShortDescription = blogPost.ShortDescription,
+                Content = blogPost.Content,
+                PublishedDate = blogPost.PublishedDate,
+                IsVisible = blogPost.IsVisible,
+                FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                Categories = blogPost.Categories.Select(x => new CategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                }).ToList()
+            };
+            return Ok(response);
+        }
+        //Put{id}
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> UpdateBlogPostById([FromRoute] Guid id, UpdateBlogPostRequestDto request)
+        {
+            //DTO to Domain
+            var blogPost = new BlogPost
+            {
+                Id = id,
+                Title = request.Title,
+                Author = request.Author,
+                ShortDescription = request.ShortDescription,
+                Content = request.Content,
+                UrlHandle = request.UrlHandle,
+                FeaturedImageUrl = request.FeaturedImageUrl,
+                IsVisible = request.IsVisible,
+                PublishedDate = request.PublishedDate,
+                Categories = new List<Category>()
+            };
+            foreach (var categoryGuid in request.Categories)
+            {
+                var existingCategory = await categoryRepository.GetById(categoryGuid);
+                if (existingCategory != null)
+                {
+                    blogPost.Categories.Add(existingCategory);
+                }
+            }
+            //Call repo to update domain
+            var UpdatedBlogPost = await blogPostRepository.UpdateAsync(blogPost);
+            if (UpdatedBlogPost == null)
+            {
+                return NotFound();
+            }
+
+            var response = new BlogPostDto
+            {
+                Id = UpdatedBlogPost.Id,
+                Title = UpdatedBlogPost.Title,
+                Author = UpdatedBlogPost.Author,
+                UrlHandle = UpdatedBlogPost.UrlHandle,
+                ShortDescription = UpdatedBlogPost.ShortDescription,
+                Content = UpdatedBlogPost.Content,
+                PublishedDate = UpdatedBlogPost.PublishedDate,
+                IsVisible = UpdatedBlogPost.IsVisible,
+                FeaturedImageUrl = UpdatedBlogPost.FeaturedImageUrl,
+                Categories = UpdatedBlogPost.Categories.Select(x => new CategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                }).ToList()
+            };
+            return Ok(response);
+        }
     }
 }
