@@ -29,6 +29,8 @@ namespace CodePulse.API.Repositories.Implementation
             //we will access HttpContextAccessor to determine wheather it is http os https/pathbase
             var httpRequest = httpContextAccessor.HttpContext.Request;
             var urlPath = $"{httpRequest.Scheme}://{httpRequest.Host}{httpRequest.PathBase}/Images/{blogImage.FileName}{blogImage.FileExtension}";
+            //Here I found pathbase empty. I don't know wht use it. 
+            //found this on stackoverflow https://stackoverflow.com/questions/65529572/difference-between-httpcontext-request-path-and-httpcontext-request-pathbase
             blogImage.Url = urlPath;
             await dbContext.BlogImages.AddAsync(blogImage);
             await dbContext.SaveChangesAsync();
