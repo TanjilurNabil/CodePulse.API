@@ -33,6 +33,7 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<IBlogPostRepository,BlogPostRepository>();
 builder.Services.AddScoped<IImageRepository,ImageRepository>();
+builder.Services.AddScoped<ITokenRepository,TokenRepository>();
 builder.Services.AddSingleton<IConfiguration>(configuration); //Used for read appsetting.json
 //configure identity core to tell about I have identity user and role 
 builder.Services.AddIdentityCore<IdentityUser>()

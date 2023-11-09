@@ -74,6 +74,8 @@ namespace CodePulse.API.Controllers
         {
            // var allowedExtensions = new string[] { ".jpg", ".jpeg", ".png" };
             var allowedExtensions = configuration.GetSection("AllowedExtensions").Get<string[]>();
+            //Will Test it
+            //var allowedExtensions = configuration["AllowedExtensions"]; 
             if (allowedExtensions is not null)
             {
                 if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
