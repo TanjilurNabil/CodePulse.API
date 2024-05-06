@@ -1,4 +1,5 @@
 using CodePulse.API.Data;
+using CodePulse.API.Models.Domain;
 using CodePulse.API.Repositories.Implementation;
 using CodePulse.API.Repositories.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,7 +32,9 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CodePulseConnectionString"));
 });
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+builder.Services.AddScoped<IGenericRepository<Category>,CategoryRepository>();
 builder.Services.AddScoped<IBlogPostRepository,BlogPostRepository>();
+builder.Services.AddScoped<IGenericRepository<BlogPost>,BlogPostRepository>();
 builder.Services.AddScoped<IImageRepository,ImageRepository>();
 builder.Services.AddScoped<ITokenRepository,TokenRepository>();
 builder.Services.AddSingleton<IConfiguration>(configuration); //Used for read appsetting.json

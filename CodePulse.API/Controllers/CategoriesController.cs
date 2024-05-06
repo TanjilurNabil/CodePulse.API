@@ -13,10 +13,12 @@ namespace CodePulse.API.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository categoryRepository;
+        private readonly IGenericRepository<Category> genericCategory;
 
-        public CategoriesController(ICategoryRepository categoryRepository)
+        public CategoriesController(ICategoryRepository categoryRepository,IGenericRepository<Category> genericCategory)
         {
             this.categoryRepository = categoryRepository;
+            this.genericCategory = genericCategory;
         }
 
         [HttpPost]
@@ -29,7 +31,9 @@ namespace CodePulse.API.Controllers
                 Name = request.Name,
                 UrlHandle = request.UrlHandle
             };
-            await categoryRepository.CreateAsync(category);
+            //await categoryRepository.CreateAsync(category);
+            //await categoryRepository.CreateAsync(category);
+            await genericCategory.CreateAsync(category);
             //Domain model to DTO
             var response = new CategoryDto
             {
@@ -44,7 +48,9 @@ namespace CodePulse.API.Controllers
         
         public async Task<IActionResult> GetAllCategory()
         {
-            var categoryObj = await categoryRepository.GetAllAsync();
+            //var categoryObj = await categoryRepository.GetAllAsync();
+            
+            var categoryObj = await genericCategory.GetAllAsync();
             //Map response to DTo
             var response = new List<CategoryDto>();
             foreach (var category in categoryObj)
@@ -59,7 +65,8 @@ namespace CodePulse.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
         {
-            var existingCategory = await categoryRepository.GetById(id);
+            //var existingCategory = await categoryRepository.GetById(id);
+            var existingCategory = await genericCategory.GetByIdAsync(id);
             if (existingCategory is null)
             {
                 return NotFound();
@@ -86,7 +93,8 @@ namespace CodePulse.API.Controllers
                 Name = request.Name,
                 UrlHandle = request.UrlHandle
             };
-            category = await categoryRepository.UpdateAsync(category);
+            //category = await categoryRepository.UpdateAsync(category);
+            category = await genericCategory.UpdateAsync(category);
             if (category is null)
             {
                 return NotFound();
@@ -106,7 +114,8 @@ namespace CodePulse.API.Controllers
         [Authorize(Roles = "Writer")]
         public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
         {
-            var category = await categoryRepository.DeleteAsync(id);
+            //var category = await categoryRepository.DeleteAsync(id);
+            var category = await genericCategory.DeleteAsync(id);
             if (category is null)
             {
                 return NotFound();

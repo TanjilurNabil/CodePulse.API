@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodePulse.API.Repositories.Implementation
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository : ICategoryRepository,IGenericRepository<Category>
     {
         private readonly ApplicationDbContext dbContext;
 
@@ -28,7 +28,7 @@ namespace CodePulse.API.Repositories.Implementation
             return await dbContext.Categories.ToListAsync();
         }
 
-        public async Task<Category?> GetById(Guid id)
+        public async Task<Category?> GetByIdAsync(Guid id)
         {
             return await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
 

@@ -13,11 +13,13 @@ namespace CodePulse.API.Controllers
     {
         private readonly IBlogPostRepository blogPostRepository;
         private readonly ICategoryRepository categoryRepository;
+        private readonly IGenericRepository<BlogPost> genericBlogPost;
 
-        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository)
+        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository,IGenericRepository<BlogPost> genericBlogPost)
         {
             this.blogPostRepository = blogPostRepository;
             this.categoryRepository = categoryRepository;
+            this.genericBlogPost = genericBlogPost;
         }
         [HttpPost]
         [Authorize(Roles = "Writer")]
@@ -38,13 +40,15 @@ namespace CodePulse.API.Controllers
             //Here we are itterating through the create request guid of category and check if it valid or not with the help of category repository.If valid then add founded category in blogpost domain model
             foreach (var categoryGuid in request.Categories)
             {
-                var existingCategory = await categoryRepository.GetById(categoryGuid);
+                var existingCategory = await categoryRepository.GetByIdAsync(categoryGuid);
+                
                 if (existingCategory != null)
                 {
                     blogPost.Categories.Add(existingCategory);
                 }
             }
-            blogPost = await blogPostRepository.CreateAsync(blogPost);
+            //blogPost = await blogPostRepository.CreateAsync(blogPost);
+            blogPost = await genericBlogPost.CreateAsync(blogPost);
 
             //Convert to DTO
             var response = new BlogPostDto
@@ -70,7 +74,7 @@ namespace CodePulse.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBlogPosts()
         {
-            var blogPosts = await blogPostRepository.GetAllAsync();
+            var blogPosts = await genericBlogPost.GetAllAsync();
             //Convert to DTO
             var response = new List<BlogPostDto>();
             foreach (var blogPost in blogPosts)
@@ -102,7 +106,8 @@ namespace CodePulse.API.Controllers
         public async Task<IActionResult> GetBlogPostById([FromRoute] Guid id)
         {
             //Get the blogpost from repo
-            var blogPost = await blogPostRepository.GetByIdAsync(id);
+            //var blogPost = await blogPostRepository.GetByIdAsync(id);
+            var blogPost = await genericBlogPost.GetByIdAsync(id);
             if (blogPost == null)
             {
                 return NotFound();
@@ -184,14 +189,15 @@ namespace CodePulse.API.Controllers
             };
             foreach (var categoryGuid in request.Categories)
             {
-                var existingCategory = await categoryRepository.GetById(categoryGuid);
+                var existingCategory = await categoryRepository.GetByIdAsync(categoryGuid);
                 if (existingCategory != null)
                 {
                     blogPost.Categories.Add(existingCategory);
                 }
             }
             //Call repo to update domain
-            var UpdatedBlogPost = await blogPostRepository.UpdateAsync(blogPost);
+            //var UpdatedBlogPost = await blogPostRepository.UpdateAsync(blogPost);
+            var UpdatedBlogPost = await genericBlogPost.UpdateAsync(blogPost);
             if (UpdatedBlogPost == null)
             {
                 return NotFound();
@@ -222,7 +228,8 @@ namespace CodePulse.API.Controllers
         [Authorize(Roles = "Writer")]
         public async Task<IActionResult> DeleteBlogPost(Guid id)
         {
-            var deletedBlogPost = await blogPostRepository.DeleteAsync(id);
+           // var deletedBlogPost = await blogPostRepository.DeleteAsync(id);
+            var deletedBlogPost = await genericBlogPost.DeleteAsync(id);
             if (deletedBlogPost == null) { return NotFound(); }
             //Domain to DTo
             var response = new BlogPostDto

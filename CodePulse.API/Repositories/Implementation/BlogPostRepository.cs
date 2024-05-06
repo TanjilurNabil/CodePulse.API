@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodePulse.API.Repositories.Implementation
 {
-    public class BlogPostRepository:IBlogPostRepository
+    public class BlogPostRepository:IBlogPostRepository,IGenericRepository<BlogPost>
     {
         private readonly ApplicationDbContext dbContext;
 
